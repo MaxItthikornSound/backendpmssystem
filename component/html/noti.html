@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Static Template</title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    </head>
+
+    <body style="margin: 0; font-family: 'Poppins', sans-serif; background: #ffffff; font-size: 14px;">
+        <div style="max-width: 680px; margin: 0 auto; font-size: 14px; color: #434343;">
+            <!-- ส่วนหัว -->
+            <header style="background-color: #ffc107; height: 70px;">
+                <table style="width: 100%;">
+                    <tbody>
+                        <tr>
+                            <td style="padding-top: 10px; padding-left: 30px;">
+                                <img alt="" src="https://drive.google.com/thumbnail?id=1AztUwxk6yVLgmqPWoRwHZsre0M_S1Swr" height="45px" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </header>
+
+            <!-- ส่วนตรงกลาง -->
+            <main style="padding: 40px 30px">
+                <label style="font-weight: bold;">แจ้งเตือน: กรุณาประเมินตนเองในระบบ PMS ก่อนครบกำหนด</label><br><br>
+                <label style="font-weight: bold;">เรียน email@company.co.th</label><br><br>
+                <label style="font-weight: bold;" id="message"></label>
+            </main>
+
+            <!-- ส่วนด้านล่าง -->
+            <footer style="width: 100%; margin: 20px auto 0; text-align: center; background-color: #2e2e2e; height: 60px;">
+                <label style="display: block; margin: 0; color: white; font-weight: bold; line-height: 60px;">
+                    ©2024 Nok Airlines Public Company Limited. All Right Reserved.
+                </label>
+            </footer>
+            
+        </div>
+    </body>
+</html>
+
+<script>
+    var message = "ระบบ PMS ของบริษัทได้แจ้งเตือนว่าท่านยังไม่ได้ดำเนินการประเมินตนเอง ซึ่งเป็นขั้นตอนสำคัญในการพัฒนาศักยภาพและวางแผนการทำงานร่วมกันเพื่อให้กระบวนการดำเนินงานเสร็จสมบูรณ์ กรุณาทำการประเมินตนเองภายในวันที่ [วันครบกำหนด] ขณะนี้เหลือเวลาอีก [วันที่เหลือ] วันก่อนสิ้นสุดการประเมิน /n/nท่านสามารถเข้าสู่ระบบเพื่อทำการประเมินได้ที่: www.pmssystem.nokair.co.th/n/nหากพบปัญหาในการใช้งานระบบหรือมีคำถามเพิ่มเติม กรุณาติดต่อฝ่ายทรัพยากรบุคคล/n/nขอขอบคุณสำหรับความร่วมมือ/n/nฝ่ายระบบบริหารงานบุคคล (PMS)/nบริษัท สายการบินนกแอร์ จำกัด (มหาชน)";
+    
+    // แทนที่ '/n' เป็น <br>
+    message = message.replace(/\/n/g, '<br>');
+    
+    // นำข้อความที่เปลี่ยนแปลงแล้วไปแสดงที่แท็ก <p>
+    document.getElementById("message").innerHTML = message;
+</script>
+
