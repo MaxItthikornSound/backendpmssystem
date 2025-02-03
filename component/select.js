@@ -107,9 +107,9 @@ const Select = (connectdatabase) => {
                         const partSubmitYear = partSubmitDate.getFullYear(); // ดึงปีจาก PartSubmit
                         const partSubmitMonth = partSubmitDate.getMonth() + 1; // ดึงเดือนจาก PartSubmit (0-11) จึงต้อง +1
                         // กำหนดรอบตามเดือนสำหรับวันที่ปัจจุบัน
-                        const currentCycle = currentMonth >= 6 && currentMonth <= 8 ? `1-${currentYear}` : (currentMonth === 11 || currentMonth === 12 || currentMonth === 1) ? `2-${currentYear}` : null;
+                        const currentCycle = currentMonth >= 6 && currentMonth <= 8 ? `1-${currentYear}` : (currentMonth === 11 || currentMonth === 12 || currentMonth === 1 || currentMonth === 2) ? `2-${currentYear}` : null;
                         // กำหนดรอบตามเดือนสำหรับวันที่ใน PartSubmit
-                        const partSubmitCycle = partSubmitMonth >= 6 && partSubmitMonth <= 8 ? `1-${partSubmitYear}` : (partSubmitMonth === 11 || partSubmitMonth === 12 || partSubmitMonth === 1) ? `2-${partSubmitYear}` : null;
+                        const partSubmitCycle = partSubmitMonth >= 6 && partSubmitMonth <= 8 ? `1-${partSubmitYear}` : (partSubmitMonth === 11 || partSubmitMonth === 12 || partSubmitMonth === 1 || currentMonth === 2) ? `2-${partSubmitYear}` : null;
                         // เปรียบเทียบรอบทั้งสองและคืนค่า true หรือ false
                         resolve(currentCycle === partSubmitCycle ? result : 'no_score');
                     } else {
