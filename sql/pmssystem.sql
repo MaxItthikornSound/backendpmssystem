@@ -168,7 +168,7 @@ CREATE TABLE EmailConfig (
 
 -- Insert ตัวอย่างข้อมูลใน Employee
 INSERT INTO Employee (EmployeeID, EmployeeCode, EmployeeFullNameEN, EmployeeFullNameTH, EmployeePosition, SupervisorCode, DepartmentID, EmployeeUserType, EmployeeEmail, EmployeeLevel, EmployeeAnnotation, EmployeePassword) VALUES
-(260, 'nok0000', 'Administrator', 'ผู้ดูแลระบบ', 'Admin', '-', '10000', 'admin', 'admin@gmail.com', 'level_3', '', '$2b$10$wPvd5DsrwjEdIMeZAwFsSOTJZdPwGqrp6o0OsRogbBJ3ATb.7GtBm');
+(260, 'nok0000', 'Administrator', 'ผู้ดูแลระบบ', 'Admin', '-', '10000', 'admin', 'admin@gmail.com', 'level_5', '', '$2b$10$wPvd5DsrwjEdIMeZAwFsSOTJZdPwGqrp6o0OsRogbBJ3ATb.7GtBm');
 
 -- Insert ตัวอย่างข้อมูลใน PartType
 INSERT INTO PartType (PartTypeID, PartTypeName, PartTypeQuestion, PartTypeStatusStaff, PartTypeStatusManager, PartTypeStatusHeadOf) VALUES
