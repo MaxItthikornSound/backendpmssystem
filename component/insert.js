@@ -117,6 +117,11 @@ const Insert = (connectdatabase) => {
 
     // เมื่อมีการประเมินแล้วจะต้องบันทึกคะแนนลงไป 
     const add_evalscore = (item, datetime) => {
+        const date = new Date(datetime);
+        const month = date.getMonth() + 1; // getMonth() นับจาก 0-11
+        const year = date.getFullYear();
+        let period;
+        month >= 4 && month <= 9 ? period = `1-${year}` : month >= 10 ? period = `2-${year}` : period = `2-${year - 1}`; // ตรวจสอบช่วงเดือนและกำหนดค่าให้ตัวแปร period
         const { data } = item;
         if (data.part === 'Part1' || data.part === 'Part2') {
             const partid = objectkey('id', data.rating);
@@ -125,14 +130,22 @@ const Insert = (connectdatabase) => {
             return new Promise((resolve, reject) => {
                 const promises = partid.map((id, index) => {
                     return new Promise((resolve, reject) => {
-                        const sql = `insert into ${data.part} (PartID, PartRating, PartComment, EmployeeCode, EvaluatorCode, PartType, PartSubmit) values (?, ?, ?, ?, ?, ?, ?)`;
-                        connectdatabase.query(sql, [id, rating[index], comment[index], data.employeecode, data.evaluatorcode, data.type, datetime], (error, result) => {
+                        const select = 'select * from Part where PartID = ?';
+                        connectdatabase.query(select, [id], (error, result) => {
                             if (error) {
                                 reject(error);
                             } else {
-                                result.affectedRows === 1 ? resolve('saveeval_success') : null;
+                                const sql = `insert into ${data.part} (PartID, PartRating, PartWeight, PartComment, EmployeeCode, EvaluatorCode, PartType, PartSubmit, PartStatus) values (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                                connectdatabase.query(sql, [id, rating[index], result[0].PartWeight, comment[index], data.employeecode, data.evaluatorcode, data.type, datetime, period], (error, result) => {
+                                    if (error) {
+                                        console.error(error);
+                                        reject(error);
+                                    } else {
+                                        result.affectedRows === 1 ? resolve('saveeval_success') : null;
+                                    }
+                                });
                             }
-                        })
+                        });
                     });
                 });
                 Promise.all(promises).then(() => { resolve('saveeval_success'); }).catch(error => { reject(error); });
@@ -141,8 +154,8 @@ const Insert = (connectdatabase) => {
             return new Promise((resolve, reject) => {
                 const promises = data.strenght.map((_, index) => {
                     return new Promise((resolve, reject) => {
-                        const sql = `insert into ${data.part} (PartStrenght, PartTopic, PartHTCG, PartPeriod, EmployeeCode, EvaluatorCode, PartType, PartSubmit) values (?, ?, ?, ?, ?, ?, ?, ?)`;
-                        connectdatabase.query(sql, [data.strenght[index], data.topic[index], data.htcg[index], data.period[index], data.employeecode, data.evaluatorcode, data.type, datetime], (error, result) => {
+                        const sql = `insert into ${data.part} (PartStrenght, PartTopic, PartHTCG, PartPeriod, EmployeeCode, EvaluatorCode, PartType, PartSubmit, PartStatus) values (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                        connectdatabase.query(sql, [data.strenght[index], data.topic[index], data.htcg[index], data.period[index], data.employeecode, data.evaluatorcode, data.type, datetime, period], (error, result) => {
                             if (error) {
                                 reject(error);
                             } else {
@@ -157,8 +170,8 @@ const Insert = (connectdatabase) => {
             return new Promise((resolve, reject) => {
                 const promises = data.impact.map((_, index) => {
                     return new Promise((resolve, reject) => {
-                        const sql = `insert into ${data.part} (PartImpact, PartPO, PartPeriod, PartProjectDetail, EmployeeCode, EvaluatorCode, PartType, PartSubmit) values (?, ?, ?, ?, ?, ?, ?, ?)`;
-                        connectdatabase.query(sql, [data.impact[index].value, data.po[index], data.period[index], data.project[index], data.employeecode, data.evaluatorcode, data.type, datetime], (error, result) => {
+                        const sql = `insert into ${data.part} (PartImpact, PartPO, PartPeriod, PartProjectDetail, EmployeeCode, EvaluatorCode, PartType, PartSubmit, PartStatus) values (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                        connectdatabase.query(sql, [data.impact[index].value, data.po[index], data.period[index], data.project[index], data.employeecode, data.evaluatorcode, data.type, datetime, period], (error, result) => {
                             if (error) {
                                 reject(error);
                             } else {
@@ -175,8 +188,8 @@ const Insert = (connectdatabase) => {
             return new Promise((resolve, reject) => {
                 const promises = partid.map((id, index) => {
                     return new Promise((resolve, reject) => {
-                        const sql = `insert into ${data.part} (PartID, PartComment, EmployeeCode, EvaluatorCode, PartType, PartSubmit) values (?, ?, ?, ?, ?, ?)`;
-                        connectdatabase.query(sql, [id, comment[index], data.employeecode, data.evaluatorcode, data.type, datetime], (error, result) => {
+                        const sql = `insert into ${data.part} (PartID, PartComment, EmployeeCode, EvaluatorCode, PartType, PartSubmit, PartStatus) values (?, ?, ?, ?, ?, ?, ?)`;
+                        connectdatabase.query(sql, [id, comment[index], data.employeecode, data.evaluatorcode, data.type, datetime, period], (error, result) => {
                             if (error) {
                                 reject(error);
                             } else {
