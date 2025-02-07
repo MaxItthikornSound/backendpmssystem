@@ -138,6 +138,11 @@ const Select = (connectdatabase) => {
     // ดึงข้อมูลสำหรับการประเมินของหัวหน้าประเมินลูกน้อง
     const eval_score = (data) => {
         return new Promise(async (resolve, reject) => {
+            const date = new Date();
+            const month = date.getMonth() + 1; // getMonth() นับจาก 0-11
+            const year = date.getFullYear();
+            let period;
+            month >= 4 && month <= 9 ? period = `1-${year}` : month >= 10 ? period = `2-${year}` : period = `2-${year - 1}`; // ตรวจสอบช่วงเดือนและกำหนดค่าให้ตัวแปร period
             const { supervisorcode, level, departmentid, page } = data;
             if (level === 'level_3' || level === 'level_4' || level === 'level_5') {
                 if (page === 'manager') {
@@ -158,23 +163,23 @@ const Select = (connectdatabase) => {
                                         const weightpart2 = await get_part('part2', employee.EmployeeLevel === 'level_5' || employee.EmployeeLevel === 'level_4' ? 'level_3' : employee.EmployeeLevel);
                                         // ดึงตะแนนการประเมิน Part1 และเวลาการประเมินของการประเมิน Part1 สำหรับ Self
                                         const sql2Promise = new Promise((resolve, reject) => {
-                                            const sql2 = 'select * from Part1 where EmployeeCode = ? and PartType = ?';
-                                            connectdatabase.query(sql2, [employee.EmployeeCode, 'self'], (error2, result2) => { if (error2) { reject(error2); } else { result2.forEach((data, index) => { ratingself1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingself1 = 5; dateselfpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                            const sql2 = 'select * from Part1 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                            connectdatabase.query(sql2, [employee.EmployeeCode, 'self', period], (error2, result2) => { if (error2) { reject(error2); } else { result2.forEach((data, index) => { ratingself1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingself1 = 5; dateselfpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                         });
                                         // ดึงตะแนนการประเมิน Part2 และเวลาการประเมินของการประเมิน Part2 สำหรับ Self
                                         const sql3Promise = new Promise((resolve, reject) => {
-                                            const sql3 = 'select * from Part2 where EmployeeCode = ? and PartType = ?';
-                                            connectdatabase.query(sql3, [employee.EmployeeCode, 'self'], (error3, result3) => { if (error3) { reject(error3); } else { result3.forEach((data, index) => { ratingself2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingself2 = 5; dateselfpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                            const sql3 = 'select * from Part2 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                            connectdatabase.query(sql3, [employee.EmployeeCode, 'self', period], (error3, result3) => { if (error3) { reject(error3); } else { result3.forEach((data, index) => { ratingself2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingself2 = 5; dateselfpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                         });
                                         // ดึงตะแนนการประเมิน Part1 และเวลาการประเมินของการประเมิน Part1 สำหรับ Manager
                                         const sql4Promise = new Promise((resolve, reject) => {
-                                            const sql4 = 'select * from Part1 where EmployeeCode = ? and PartType = ?';
-                                            connectdatabase.query(sql4, [employee.EmployeeCode, 'manager'], (error4, result4) => { if (error4) { reject(error4); } else { result4.forEach((data, index) => { ratingmanager1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingmanager1 = 5; datemanagerpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                            const sql4 = 'select * from Part1 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                            connectdatabase.query(sql4, [employee.EmployeeCode, 'manager', period], (error4, result4) => { if (error4) { reject(error4); } else { result4.forEach((data, index) => { ratingmanager1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingmanager1 = 5; datemanagerpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                         });
                                         // ดึงตะแนนการประเมิน Part2 และเวลาการประเมินของการประเมิน Part2 สำหรับ Manager
                                         const sql5Promise = new Promise((resolve, reject) => {
-                                            const sql5 = 'select * from Part2 where EmployeeCode = ? and PartType = ?';
-                                            connectdatabase.query(sql5, [employee.EmployeeCode, 'manager'], (error5, result5) => { if (error5) { reject(error5); } else { result5.forEach((data, index) => { ratingmanager2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingmanager2 = 5; datemanagerpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                            const sql5 = 'select * from Part2 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                            connectdatabase.query(sql5, [employee.EmployeeCode, 'manager', period], (error5, result5) => { if (error5) { reject(error5); } else { result5.forEach((data, index) => { ratingmanager2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingmanager2 = 5; datemanagerpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                         });
                                         const sql6Promise = new Promise((resolve, reject) => {
                                             const sql6 = 'select * from Employee where EmployeeCode = ?';
@@ -219,23 +224,23 @@ const Select = (connectdatabase) => {
                                         const weightpart2 = await get_part('part2', employee.EmployeeLevel === 'level_5' || employee.EmployeeLevel === 'level_4' ? 'level_3' : employee.EmployeeLevel);
                                         // ดึงตะแนนการประเมิน Part1 และเวลาการประเมินของการประเมิน Part1 สำหรับ Self
                                         const sql2Promise = new Promise((resolve, reject) => {
-                                            const sql2 = 'select * from Part1 where EmployeeCode = ? and PartType = ?';
-                                            connectdatabase.query(sql2, [employee.EmployeeCode, 'self'], (error2, result2) => { if (error2) { reject(error2); } else { result2.forEach((data, index) => { ratingself1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingself1 = 5; dateselfpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                            const sql2 = 'select * from Part1 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                            connectdatabase.query(sql2, [employee.EmployeeCode, 'self', period], (error2, result2) => { if (error2) { reject(error2); } else { result2.forEach((data, index) => { ratingself1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingself1 = 5; dateselfpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                         });
                                         // ดึงตะแนนการประเมิน Part2 และเวลาการประเมินของการประเมิน Part2 สำหรับ Self
                                         const sql3Promise = new Promise((resolve, reject) => {
-                                            const sql3 = 'select * from Part2 where EmployeeCode = ? and PartType = ?';
-                                            connectdatabase.query(sql3, [employee.EmployeeCode, 'self'], (error3, result3) => { if (error3) { reject(error3); } else { result3.forEach((data, index) => { ratingself2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingself2 = 5; dateselfpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                            const sql3 = 'select * from Part2 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                            connectdatabase.query(sql3, [employee.EmployeeCode, 'self', period], (error3, result3) => { if (error3) { reject(error3); } else { result3.forEach((data, index) => { ratingself2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingself2 = 5; dateselfpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                         });
                                         // ดึงตะแนนการประเมิน Part1 และเวลาการประเมินของการประเมิน Part1 สำหรับ Manager
                                         const sql4Promise = new Promise((resolve, reject) => {
-                                            const sql4 = 'select * from Part1 where EmployeeCode = ? and PartType = ?';
-                                            connectdatabase.query(sql4, [employee.EmployeeCode, 'manager'], (error4, result4) => { if (error4) { reject(error4); } else { result4.forEach((data, index) => { ratingmanager1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingmanager1 = 5; datemanagerpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                            const sql4 = 'select * from Part1 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                            connectdatabase.query(sql4, [employee.EmployeeCode, 'manager', period], (error4, result4) => { if (error4) { reject(error4); } else { result4.forEach((data, index) => { ratingmanager1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingmanager1 = 5; datemanagerpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                         });
                                         // ดึงตะแนนการประเมิน Part2 และเวลาการประเมินของการประเมิน Part2 สำหรับ Manager
                                         const sql5Promise = new Promise((resolve, reject) => {
-                                            const sql5 = 'select * from Part2 where EmployeeCode = ? and PartType = ?';
-                                            connectdatabase.query(sql5, [employee.EmployeeCode, 'manager'], (error5, result5) => { if (error5) { reject(error5); } else { result5.forEach((data, index) => { ratingmanager2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingmanager2 = 5; datemanagerpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                            const sql5 = 'select * from Part2 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                            connectdatabase.query(sql5, [employee.EmployeeCode, 'manager', period], (error5, result5) => { if (error5) { reject(error5); } else { result5.forEach((data, index) => { ratingmanager2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingmanager2 = 5; datemanagerpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                         });
                                         const sql6Promise = new Promise((resolve, reject) => {
                                             const sql6 = 'select * from Employee where EmployeeCode = ?';
@@ -271,54 +276,103 @@ const Select = (connectdatabase) => {
                     } else {
                         if (result1.length) {
                             const promises = result1.map(employee => {
-                                return new Promise(async (resolve, reject) => {
-                                    let fullratingself1 = 0, ratingself1 = 0, fullratingself2 = 0, ratingself2 = 0;
-                                    let fullratingmanager1 = 0, ratingmanager1 = 0, fullratingmanager2 = 0, ratingmanager2 = 0;
-                                    let namesupervisor = '';
-                                    let dateselfpart1 = '', dateselfpart2 = '', dateselfpart3 = '', dateselfpart4 = '', dateselfpart5 = '';
-                                    let datemanagerpart1 = '', datemanagerpart2 = '', datemanagerpart3 = '', datemanagerpart4 = '', datemanagerpart5 = ''; 
-                                    const weightpart1 = await get_part('part1', employee.EmployeeLevel === 'level_5' || employee.EmployeeLevel === 'level_4' ? 'level_3' : employee.EmployeeLevel);
-                                    const weightpart2 = await get_part('part2', employee.EmployeeLevel === 'level_5' || employee.EmployeeLevel === 'level_4' ? 'level_3' : employee.EmployeeLevel);
-                                    // ดึงตะแนนการประเมิน Part1 และเวลาการประเมินของการประเมิน Part1 สำหรับ Self
-                                    const sql2Promise = new Promise((resolve, reject) => {
-                                        const sql2 = 'select * from Part1 where EmployeeCode = ? and PartType = ?';
-                                        connectdatabase.query(sql2, [employee.EmployeeCode, 'self'], (error2, result2) => { if (error2) { reject(error2); } else { result2.forEach((data, index) => { ratingself1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingself1 = 5; dateselfpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
-                                    });
-                                    // ดึงตะแนนการประเมิน Part2 และเวลาการประเมินของการประเมิน Part2 สำหรับ Self
-                                    const sql3Promise = new Promise((resolve, reject) => {
-                                        const sql3 = 'select * from Part2 where EmployeeCode = ? and PartType = ?';
-                                        connectdatabase.query(sql3, [employee.EmployeeCode, 'self'], (error3, result3) => { if (error3) { reject(error3); } else { result3.forEach((data, index) => { ratingself2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingself2 = 5; dateselfpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
-                                    });
-                                    // ดึงตะแนนการประเมิน Part1 และเวลาการประเมินของการประเมิน Part1 สำหรับ Manager
-                                    const sql4Promise = new Promise((resolve, reject) => {
-                                        const sql4 = 'select * from Part1 where EmployeeCode = ? and PartType = ?';
-                                        connectdatabase.query(sql4, [employee.EmployeeCode, 'manager'], (error4, result4) => { if (error4) { reject(error4); } else { result4.forEach((data, index) => { ratingmanager1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingmanager1 = 5; datemanagerpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
-                                    });
-                                    // ดึงตะแนนการประเมิน Part2 และเวลาการประเมินของการประเมิน Part2 สำหรับ Manager
-                                    const sql5Promise = new Promise((resolve, reject) => {
-                                        const sql5 = 'select * from Part2 where EmployeeCode = ? and PartType = ?';
-                                        connectdatabase.query(sql5, [employee.EmployeeCode, 'manager'], (error5, result5) => { if (error5) { reject(error5); } else { result5.forEach((data, index) => { ratingmanager2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingmanager2 = 5;  datemanagerpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
-                                    });
-                                    const sql6Promise = new Promise((resolve, reject) => {
-                                        const sql6 = 'select * from Employee where EmployeeCode = ?';
-                                        connectdatabase.query(sql6, [employee.SupervisorCode], (error6, result6) => { if (error6) { reject(error6);  } else { result6.forEach(data =>  namesupervisor = data.EmployeeFullNameEN); resolve(); }});
-                                    });
+                                return new Promise((resolve, reject) => {
+                                    const sql2Promise = 'select * from Part1 inner join Employee on Employee.EmployeeCode = Part1.EmployeeCode inner join Department on Employee.DepartmentID = Department.DepartmentID where Employee.EmployeeCode = ? and PartType = ?';
+                                    const sql3Promise = 'select * from Part2 inner join Employee on Employee.EmployeeCode = Part2.EmployeeCode inner join Department on Employee.DepartmentID = Department.DepartmentID where Employee.EmployeeCode = ? and PartType = ?';
+                            
+                                    // ใช้ Promise.all เพื่อรันทั้งสอง query พร้อมกัน
+                                    Promise.all([
+                                        new Promise((resolve, reject) => {
+                                            connectdatabase.query(sql2Promise, [employee.EmployeeCode, 'self'], (error, result) => {
+                                                if (error) reject(error);
+                                                else resolve(result);
+                                            });
+                                        }),
+                                        new Promise((resolve, reject) => {
+                                            connectdatabase.query(sql3Promise, [employee.EmployeeCode, 'self'], (error, result) => {
+                                                if (error) reject(error);
+                                                else resolve(result);
+                                            });
+                                        }),
+                                        new Promise((resolve, reject) => {
+                                            connectdatabase.query(sql2Promise, [employee.EmployeeCode, 'manager'], (error, result) => {
+                                                if (error) reject(error);
+                                                else resolve(result);
+                                            });
+                                        }),
+                                        new Promise((resolve, reject) => {
+                                            connectdatabase.query(sql3Promise, [employee.EmployeeCode, 'manager'], (error, result) => {
+                                                if (error) reject(error);
+                                                else resolve(result);
+                                            });
+                                        })
+                                    ])
+                                    .then(([result2, result3, result4, result5]) => {
+                                        let groupedData = {};
+                                        // ฟังก์ชันช่วยรวมข้อมูลจาก Part1 และ Part2
+                                        const processResults = (data, partType, status) => {
+                                            data.forEach(({ EmployeeID, EmployeeCode, EmployeeFullNameEN, EmployeeFullNameTH, EmployeePosition, SupervisorCode, EmployeeLevel, EmployeeUserType, PartStatus, PartRating, PartWeight, PartSubmit, DepartmentID, DepartmentName }) => {
+                                                const key = `${PartStatus}-${EmployeeCode}`;
+                                                if (!groupedData[key]) {
+                                                    groupedData[key] = {
+                                                        PartStatus,
+                                                        EmployeeID,
+                                                        EmployeeCode,
+                                                        EmployeeFullNameEN,
+                                                        EmployeeFullNameTH,
+                                                        EmployeePosition,
+                                                        EmployeeLevel,
+                                                        EmployeeUserType,
+                                                        Supervisor: SupervisorCode,
+                                                        DepartmentID,
+                                                        DepartmentName,
+                                                        TotalPart1Self: 0,
+                                                        TotalPart2Self: 0,
+                                                        TotalPart1Manager: 0,
+                                                        TotalPart2Manager: 0,
+                                                        PartSubmit1: null,
+                                                        PartSubmit2: null
+                                                    };
+                                                }
+                                                // คำนวณค่า TotalRating ตามประเภท
+                                                if (partType === 'Part1') {
+                                                    groupedData[key].PartSubmit1 = moment(PartSubmit).format('YYYY-MM-DD'); // เก็บค่า PartSubmit ของ Part1
+                                                } else if (partType === 'Part2') {
+                                                    groupedData[key].PartSubmit2 = moment(PartSubmit).format('YYYY-MM-DD'); // เก็บค่า PartSubmit ของ Part2
+                                                }
+                                                if (partType === 'Part1' && status === 'Self') {
+                                                    groupedData[key].TotalPart1Self += (PartRating * PartWeight) / 100;
+                                                } else if (partType === 'Part2' && status === 'Self') {
+                                                    groupedData[key].TotalPart2Self += (PartRating * PartWeight) / 100;
+                                                }
+                                                if (partType === 'Part1' && status === 'Manager') {
+                                                    groupedData[key].TotalPart1Manager += ((PartRating * PartWeight) / 100);
 
-                                    Promise.all([sql2Promise, sql3Promise, sql4Promise, sql5Promise, sql6Promise])
-                                    .then(() => {
-                                        const updatedEmployee = { 
-                                            ...employee, NameSupervisor: namesupervisor, 
-                                            PartRatingSelf1: ratingself1, FullRatingSelf1: fullratingself1, PartRatingSelf2: ratingself2, FullRatingSelf2: fullratingself2, 
-                                            PartRatingManager1: ratingmanager1, FullRatingManager1: fullratingmanager1, PartRatingManager2: ratingmanager2, FullRatingManager2: fullratingmanager2,
-                                            DateSelfPart1: dateselfpart1, DateSelfPart2: dateselfpart2, DateSelfPart3: dateselfpart3, DateSelfPart4: dateselfpart4, DateSelfPart5: dateselfpart5,
-                                            DateManagerPart1: datemanagerpart1, DateManagerPart2: datemanagerpart2, DateManagerPart3: datemanagerpart3, DateManagerPart4: datemanagerpart4, DateManagerPart5: datemanagerpart5
+                                                } else if (partType === 'Part2' && status === 'Manager') {
+                                                    groupedData[key].TotalPart2Manager += (PartRating * PartWeight) / 100;
+                                                }
+                                            });
                                         };
-                                        resolve(updatedEmployee);
+                            
+                                        // ประมวลผลข้อมูลจาก Part1 และ Part2
+                                        processResults(result2, 'Part1', 'Self');
+                                        processResults(result3, 'Part2', 'Self');
+                                        processResults(result4, 'Part1', 'Manager');
+                                        processResults(result5, 'Part2', 'Manager');
+                            
+                                        // แปลง Object เป็น Array
+                                        const finalResult = Object.values(groupedData);
+                                        resolve(finalResult);
                                     })
-                                    .catch(err => reject(err));
+                                    .catch(error => reject(error));
                                 });
                             });
-                            Promise.all(promises).then(results => resolve(results)).catch(err => reject(err));
+                            
+                            // ใช้ Promise.all เพื่อรวมผลลัพธ์ทั้งหมด
+                            Promise.all(promises)
+                                .then(results => resolve(results))
+                                .catch(err => console.error(err));
+                            
                         } else {
                             resolve([]); // ไม่มีผลลัพธ์
                         }
@@ -342,23 +396,23 @@ const Select = (connectdatabase) => {
                                     const weightpart2 = await get_part('part2', employee.EmployeeLevel === 'level_5' || employee.EmployeeLevel === 'level_4' ? 'level_3' : employee.EmployeeLevel);
                                     // ดึงตะแนนการประเมิน Part1 และเวลาการประเมินของการประเมิน Part1 สำหรับ Self
                                     const sql2Promise = new Promise((resolve, reject) => {
-                                        const sql2 = 'select * from Part1 where EmployeeCode = ? and PartType = ?';
-                                        connectdatabase.query(sql2, [employee.EmployeeCode, 'self'], (error2, result2) => { if (error2) { reject(error2); } else { result2.forEach((data, index) => { ratingself1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingself1 = 5; dateselfpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                        const sql2 = 'select * from Part1 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                        connectdatabase.query(sql2, [employee.EmployeeCode, 'self', period], (error2, result2) => { if (error2) { reject(error2); } else { result2.forEach((data, index) => { ratingself1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingself1 = 5; dateselfpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                     });
                                     // ดึงตะแนนการประเมิน Part2 และเวลาการประเมินของการประเมิน Part2 สำหรับ Self
                                     const sql3Promise = new Promise((resolve, reject) => {
-                                        const sql3 = 'select * from Part2 where EmployeeCode = ? and PartType = ?';
-                                        connectdatabase.query(sql3, [employee.EmployeeCode, 'self'], (error3, result3) => { if (error3) { reject(error3); } else { result3.forEach((data, index) => { ratingself2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingself2 = 5; dateselfpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                        const sql3 = 'select * from Part2 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                        connectdatabase.query(sql3, [employee.EmployeeCode, 'self', period], (error3, result3) => { if (error3) { reject(error3); } else { result3.forEach((data, index) => { ratingself2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingself2 = 5; dateselfpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                     });
                                     // ดึงตะแนนการประเมิน Part1 และเวลาการประเมินของการประเมิน Part1 สำหรับ Manager
                                     const sql4Promise = new Promise((resolve, reject) => {
-                                        const sql4 = 'select * from Part1 where EmployeeCode = ? and PartType = ?';
-                                        connectdatabase.query(sql4, [employee.EmployeeCode, 'manager'], (error4, result4) => { if (error4) { reject(error4); } else { result4.forEach((data, index) => { ratingmanager1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingmanager1 = 5; datemanagerpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                        const sql4 = 'select * from Part1 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                        connectdatabase.query(sql4, [employee.EmployeeCode, 'manager', period], (error4, result4) => { if (error4) { reject(error4); } else { result4.forEach((data, index) => { ratingmanager1 += (weightpart1[index].PartWeight * data.PartRating / 100); fullratingmanager1 = 5; datemanagerpart1 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                     });
                                     // ดึงตะแนนการประเมิน Part2 และเวลาการประเมินของการประเมิน Part2 สำหรับ Manager
                                     const sql5Promise = new Promise((resolve, reject) => {
-                                        const sql5 = 'select * from Part2 where EmployeeCode = ? and PartType = ?';
-                                        connectdatabase.query(sql5, [employee.EmployeeCode, 'manager'], (error5, result5) => { if (error5) { reject(error5); } else { result5.forEach((data, index) => { ratingmanager2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingmanager2 = 5;  datemanagerpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
+                                        const sql5 = 'select * from Part2 where (EmployeeCode = ? and PartType = ?) and PartStatus = ?';
+                                        connectdatabase.query(sql5, [employee.EmployeeCode, 'manager', period], (error5, result5) => { if (error5) { reject(error5); } else { result5.forEach((data, index) => { ratingmanager2 += (weightpart2[index].PartWeight * data.PartRating / 100); fullratingmanager2 = 5;  datemanagerpart2 = moment(data.PartSubmit).format('YYYY-MM-DD'); }); resolve(); }});
                                     });
                                     const sql6Promise = new Promise((resolve, reject) => {
                                         const sql6 = 'select * from Employee where EmployeeCode = ?';
