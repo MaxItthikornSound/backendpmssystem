@@ -279,7 +279,9 @@ const Select = (connectdatabase) => {
                                 return new Promise((resolve, reject) => {
                                     const sql2Promise = 'select * from Part1 inner join Employee on Employee.EmployeeCode = Part1.EmployeeCode inner join Department on Employee.DepartmentID = Department.DepartmentID where Employee.EmployeeCode = ? and PartType = ?';
                                     const sql3Promise = 'select * from Part2 inner join Employee on Employee.EmployeeCode = Part2.EmployeeCode inner join Department on Employee.DepartmentID = Department.DepartmentID where Employee.EmployeeCode = ? and PartType = ?';
-                            
+                                    const sql4Promise = 'select * from Part3 where EmployeeCode = ? and PartType = ?';
+                                    const sql5Promise = 'select * from Part5 where EmployeeCode = ? and PartType = ?';
+
                                     // ใช้ Promise.all เพื่อรันทั้งสอง query พร้อมกัน
                                     Promise.all([
                                         new Promise((resolve, reject) => {
@@ -305,13 +307,25 @@ const Select = (connectdatabase) => {
                                                 if (error) reject(error);
                                                 else resolve(result);
                                             });
+                                        }),
+                                        new Promise((resolve, reject) => {
+                                            connectdatabase.query(sql4Promise, [employee.EmployeeCode, 'manager'], (error, result) => {
+                                                if (error) reject(error);
+                                                else resolve(result);
+                                            });
+                                        }),
+                                        new Promise((resolve, reject) => {
+                                            connectdatabase.query(sql5Promise, [employee.EmployeeCode, 'self'], (error, result) => {
+                                                if (error) reject(error);
+                                                else resolve(result);
+                                            });
                                         })
                                     ])
-                                    .then(([result2, result3, result4, result5]) => {
+                                    .then(([result2, result3, result4, result5, result6, result7]) => {
                                         let groupedData = {};
-                                        // ฟังก์ชันช่วยรวมข้อมูลจาก Part1 และ Part2
+                                        // ฟังก์ชันช่วยรวมข้อมูลจาก Part1 และ Part2 และ Part 3 และ Part5
                                         const processResults = (data, partType, status) => {
-                                            data.forEach(({ EmployeeID, EmployeeCode, EmployeeFullNameEN, EmployeeFullNameTH, EmployeePosition, SupervisorCode, EmployeeLevel, EmployeeUserType, PartStatus, PartRating, PartWeight, PartSubmit, DepartmentID, DepartmentName }) => {
+                                            data.forEach(({ EmployeeID, EmployeeCode, EmployeeFullNameEN, EmployeeFullNameTH, EmployeePosition, SupervisorCode, EmployeeLevel, EmployeeUserType, PartStatus, PartRating, PartWeight, PartSubmit, DepartmentID, DepartmentName, PartStrenght, PartTopic, PartHTCG, PartPeriod, PartComment }) => {
                                                 const key = `${PartStatus}-${EmployeeCode}`;
                                                 if (!groupedData[key]) {
                                                     groupedData[key] = {
@@ -331,7 +345,12 @@ const Select = (connectdatabase) => {
                                                         TotalPart1Manager: 0,
                                                         TotalPart2Manager: 0,
                                                         PartSubmit1: null,
-                                                        PartSubmit2: null
+                                                        PartSubmit2: null,
+                                                        PartStrenght,
+                                                        PartTopic,
+                                                        PartHTCG,
+                                                        PartPeriod,
+                                                        PartComment
                                                     };
                                                 }
                                                 // คำนวณค่า TotalRating ตามประเภท
@@ -351,6 +370,42 @@ const Select = (connectdatabase) => {
                                                 } else if (partType === 'Part2' && status === 'Manager') {
                                                     groupedData[key].TotalPart2Manager += (PartRating * PartWeight) / 100;
                                                 }
+                                                if (partType === 'Part3') {
+                                                    groupedData[key].PartStrenght = PartStrenght;
+                                                    groupedData[key].PartTopic = PartTopic;
+                                                    groupedData[key].PartHTCG = PartHTCG;
+                                                    groupedData[key].PartPeriod = PartPeriod;
+                                                }
+                                                if (partType === 'Part3') {
+                                                    if (!groupedData[key].PartStrenght) {
+                                                        groupedData[key].PartStrenght = PartStrenght;
+                                                    } else {
+                                                        groupedData[key].PartStrenght += `: ${PartStrenght}`; // เชื่อมต่อคอมเมนต์เป็น String
+                                                    }
+                                                    if (!groupedData[key].PartTopic) {
+                                                        groupedData[key].PartTopic = PartTopic;
+                                                    } else {
+                                                        groupedData[key].PartTopic += `: ${PartTopic}`; // เชื่อมต่อคอมเมนต์เป็น String
+                                                    }
+                                                    if (!groupedData[key].PartHTCG) {
+                                                        groupedData[key].PartHTCG = PartHTCG;
+                                                    } else {
+                                                        groupedData[key].PartHTCG += `: ${PartHTCG}`; // เชื่อมต่อคอมเมนต์เป็น String
+                                                    }
+                                                    if (!groupedData[key].PartPeriod) {
+                                                        groupedData[key].PartPeriod = PartPeriod;
+                                                    } else {
+                                                        groupedData[key].PartPeriod += `: ${PartPeriod}`; // เชื่อมต่อคอมเมนต์เป็น String
+                                                    }
+                                                }  
+                                                if (partType === 'Part5') {
+                                                    if (!groupedData[key].PartComment) {
+                                                        groupedData[key].PartComment = PartComment;
+                                                    } else {
+                                                        groupedData[key].PartComment += `: ${PartComment}`; // เชื่อมต่อคอมเมนต์เป็น String
+                                                    }
+                                                }                                                                                              
+                                                
                                             });
                                         };
                             
@@ -359,6 +414,8 @@ const Select = (connectdatabase) => {
                                         processResults(result3, 'Part2', 'Self');
                                         processResults(result4, 'Part1', 'Manager');
                                         processResults(result5, 'Part2', 'Manager');
+                                        processResults(result6, 'Part3', 'Manager');
+                                        processResults(result7, 'Part5', 'Self');
                             
                                         // แปลง Object เป็น Array
                                         const finalResult = Object.values(groupedData);
